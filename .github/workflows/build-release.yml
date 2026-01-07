@@ -50,34 +50,30 @@ jobs:
         run: npm run rebuild 2>/dev/null || npx electron-rebuild -f
         continue-on-error: true
 
-      - name: Build Electron app
-        run: npm run build:${{ matrix.platform }} -- --publish never
+      - name: Typecheck & Build Source
+        run: |
+          npm run typecheck
+          npx vite build
+
+      - name: List Source Build Output (Debug)
+        run: |
+          ls -R dist/ || echo "dist/ missing"
+          ls -R dist-electron/ || echo "dist-electron/ missing"
+
+      - name: Build Electron App (Pack)
+        run: |
+          npx electron-builder --${{ matrix.platform }} --publish never
+          ls -R release/ || echo "release/ dir NOT FOUND after build"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Disable code signing for CI builds
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: List build output (Debug)
-        run: |
-          ls -R release/ || echo "release/ not found"
-          ls -R dist/ || echo "dist/ not found"
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: trafexia-${{ matrix.platform }}
-          path: |
-            release/*.dmg
-            release/*.zip
-            release/*.exe
-            release/*.AppImage
-            release/*.deb
-            release/*-portable.exe
-            dist/*.dmg
-            dist/*.zip
-            dist/*.exe
-            dist/*.AppImage
-            dist/*.deb
+          path: release/
           if-no-files-found: warn
 
   release:
