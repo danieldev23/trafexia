@@ -45,6 +45,22 @@ export class ProxyServer extends EventEmitter {
         this.handleConnect(req, clientSocket, head);
       });
 
+      // Handle client errors gracefully (Android disconnects, etc.)
+      this.server.on('clientError', (err, socket) => {
+        const msg = err.message || '';
+        // Suppress common errors from mobile devices
+        if (!msg.includes('ECONNRESET') && !msg.includes('EPIPE')) {
+          console.error('[ProxyServer] Client error:', msg);
+        }
+        if (socket.writable) {
+          socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+        }
+      });
+
+      // Set keep-alive timeout for mobile connections
+      this.server.keepAliveTimeout = 60000; // 60 seconds
+      this.server.headersTimeout = 65000; // Slightly higher than keepAlive
+
       this.server.on('error', (err: NodeJS.ErrnoException) => {
         if (err.code === 'EADDRINUSE') {
           reject(new Error(`Port ${config.port} is already in use`));
@@ -112,7 +128,7 @@ export class ProxyServer extends EventEmitter {
   private handleRequest(clientReq: http.IncomingMessage, clientRes: http.ServerResponse): void {
     const startTime = Date.now();
     const requestUrl = clientReq.url || '';
-    
+
     let parsedUrl: url.URL;
     try {
       parsedUrl = new url.URL(requestUrl);
@@ -175,7 +191,7 @@ export class ProxyServer extends EventEmitter {
           duration: Date.now() - startTime,
           size: 0,
         });
-        
+
         if (!clientRes.headersSent) {
           clientRes.writeHead(502);
           clientRes.end('Proxy Error: ' + err.message);
@@ -244,7 +260,7 @@ export class ProxyServer extends EventEmitter {
       // Support wide range of ciphers for compatibility
       ciphers: [
         'TLS_AES_256_GCM_SHA384',
-        'TLS_CHACHA20_POLY1305_SHA256', 
+        'TLS_CHACHA20_POLY1305_SHA256',
         'TLS_AES_128_GCM_SHA256',
         'ECDHE-RSA-AES256-GCM-SHA384',
         'ECDHE-RSA-AES128-GCM-SHA256',
@@ -398,7 +414,7 @@ export class ProxyServer extends EventEmitter {
       maxVersion: 'TLSv1.3',
       ciphers: [
         'TLS_AES_256_GCM_SHA384',
-        'TLS_CHACHA20_POLY1305_SHA256', 
+        'TLS_CHACHA20_POLY1305_SHA256',
         'TLS_AES_128_GCM_SHA256',
         'ECDHE-RSA-AES256-GCM-SHA384',
         'ECDHE-RSA-AES128-GCM-SHA256',

@@ -56,8 +56,29 @@ npm run build
 # Build for specific platforms
 npm run build:mac
 npm run build:win
-npm run build:linux
 ```
+
+### Automated Releases (CI/CD)
+
+Releases are automatically built when you push a version tag:
+
+```bash
+# Create a new release
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+GitHub Actions will build for macOS, Windows, and Linux, then upload to [Releases](https://github.com/danieldev23/trafexia/releases).
+
+## Download
+
+📥 **[Download Latest Release](https://github.com/danieldev23/trafexia/releases/latest)**
+
+| Platform | File |
+|----------|------|
+| macOS | `Trafexia-x.x.x.dmg` |
+| Windows | `Trafexia-Setup-x.x.x.exe` |
+| Linux | `Trafexia-x.x.x.AppImage` |
 
 ## Usage
 

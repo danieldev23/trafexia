@@ -55,6 +55,18 @@ export class CertServer {
       }
     });
 
+    // Certificate download (CRT format - best for Android)
+    this.app.get('/cert.crt', (_req: Request, res: Response) => {
+      try {
+        const certDer = this.certManager.getCertDer();
+        res.setHeader('Content-Type', 'application/x-x509-ca-cert');
+        res.setHeader('Content-Disposition', 'attachment; filename="TrafexiaCA.crt"');
+        res.send(certDer);
+      } catch (err) {
+        res.status(500).send('Failed to get certificate');
+      }
+    });
+
     // Setup instructions page
     this.app.get('/setup', (_req: Request, res: Response) => {
       const localIp = this.getLocalIp();
@@ -126,7 +138,7 @@ export class CertServer {
    */
   async generateQrCode(proxyPort: number): Promise<string> {
     const localIp = this.getLocalIp();
-    
+
     const qrData: QrCodeData = {
       proxyIp: localIp,
       proxyPort: proxyPort,
@@ -347,9 +359,14 @@ export class CertServer {
 
     <div class="card">
       <div class="card-title">🔐 Install CA Certificate</div>
-      <a href="/cert" class="btn" download="TrafexiaCA.pem">
-        Download CA Certificate
-      </a>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="/cert.crt" class="btn" style="flex: 1;" download="TrafexiaCA.crt">
+          📱 Android (.crt)
+        </a>
+        <a href="/cert" class="btn" style="flex: 1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" download="TrafexiaCA.pem">
+          🍎 iOS (.pem)
+        </a>
+      </div>
       <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 12px; text-align: center;">
         You must install and trust this certificate to intercept HTTPS traffic.
       </p>
@@ -364,6 +381,10 @@ export class CertServer {
       </div>
 
       <div id="android" class="tab-content active">
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+          <div style="color: #fbbf24; font-weight: 600; font-size: 0.85rem;">⚠️ Android 7+ Notice</div>
+          <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Apps on Android 7+ don't trust user-installed certificates. Use <b>Chrome browser</b> for testing, or use <b>Android Emulator</b> (recommended).</div>
+        </div>
         <div class="step">
           <div class="step-number">1</div>
           <div class="step-content">
@@ -374,16 +395,20 @@ export class CertServer {
         <div class="step">
           <div class="step-number">2</div>
           <div class="step-content">
-            <div class="step-title">Download Certificate</div>
-            <div class="step-desc">Click the download button above to get the CA certificate.</div>
+            <div class="step-title">Download Certificate (.crt)</div>
+            <div class="step-desc">Click the "Android (.crt)" button above to download.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-number">3</div>
           <div class="step-content">
             <div class="step-title">Install Certificate</div>
-            <div class="step-desc">Settings → Security → Install from storage → Select TrafexiaCA.pem → Name it "Trafexia"</div>
+            <div class="step-desc">Settings → Security → Encryption & credentials → Install a certificate → CA certificate → Select TrafexiaCA.crt</div>
           </div>
+        </div>
+        <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 12px; margin-top: 16px;">
+          <div style="color: #38bdf8; font-weight: 600; font-size: 0.85rem;">💡 Using Android Emulator?</div>
+          <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Run: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">adb shell settings put global http_proxy ${localIp}:8888</code></div>
         </div>
       </div>
 
