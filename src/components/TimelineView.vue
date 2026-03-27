@@ -252,7 +252,7 @@ const avgDuration = computed(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--surface-ground);
+  background: var(--color-bg-primary);
 }
 
 .timeline-header {
@@ -260,13 +260,13 @@ const avgDuration = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid var(--surface-border);
-  background: var(--surface-card);
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
 }
 
 .timeline-header h3 {
   margin: 0;
-  color: var(--text-color);
+  color: var(--color-text-primary);
 }
 
 .timeline-controls {
@@ -279,7 +279,7 @@ const avgDuration = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-color);
+  color: var(--color-text-primary);
   font-size: 0.9rem;
 }
 
@@ -303,9 +303,9 @@ const avgDuration = computed(() => {
   height: 30px;
   position: sticky;
   top: 0;
-  background: var(--surface-ground);
+  background: var(--color-bg-primary);
   z-index: 10;
-  border-bottom: 2px solid var(--surface-border);
+  border-bottom: 2px solid var(--color-border);
   margin-bottom: 0.5rem;
 }
 
@@ -318,12 +318,12 @@ const avgDuration = computed(() => {
 .mark-line {
   width: 1px;
   height: 10px;
-  background: var(--surface-border);
+  background: var(--color-border);
 }
 
 .mark-label {
   font-size: 0.75rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   margin-top: 2px;
   white-space: nowrap;
   transform: translateX(-50%);
@@ -339,7 +339,7 @@ const avgDuration = computed(() => {
   align-items: center;
   margin-bottom: 4px;
   padding: 4px 8px;
-  background: var(--surface-card);
+  background: transparent;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -347,17 +347,17 @@ const avgDuration = computed(() => {
 }
 
 .timeline-row:hover {
-  background: var(--surface-hover);
+  background: var(--color-bg-tertiary);
   transform: translateX(2px);
 }
 
 .timeline-row.selected {
-  border-left-color: var(--primary-color);
-  background: var(--primary-50);
+  border-left-color: var(--color-accent);
+  background: var(--color-accent-muted);
 }
 
 .timeline-row.error {
-  border-left-color: var(--red-500);
+  border-left-color: var(--color-error);
 }
 
 .row-label {
@@ -391,7 +391,7 @@ const avgDuration = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-color);
+  color: var(--color-text-primary);
 }
 
 .status-badge {
@@ -452,7 +452,7 @@ const avgDuration = computed(() => {
   position: absolute;
   right: -60px;
   font-size: 0.75rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
 
@@ -462,7 +462,7 @@ const avgDuration = computed(() => {
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }
 
 .empty-state i {
@@ -475,17 +475,17 @@ const avgDuration = computed(() => {
   display: flex;
   gap: 2rem;
   padding: 1rem;
-  border-top: 1px solid var(--surface-border);
-  background: var(--surface-card);
+  border-top: 1px solid var(--color-border);
+  background: transparent;
 }
 
 .summary-item {
   font-size: 0.9rem;
-  color: var(--text-color);
+  color: var(--color-text-primary);
 }
 
 .summary-item strong {
   margin-right: 0.5rem;
-  color: var(--text-color-secondary);
+  color: var(--color-text-secondary);
 }
 </style>

@@ -11,7 +11,8 @@
     "build:linux": "vue-tsc --noEmit && vite build && electron-builder --linux",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.ts,.tsx --fix"
+    "lint": "eslint . --ext .vue,.ts,.tsx --fix",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "trafexia",
