@@ -88,7 +88,7 @@ export interface QrCodeData {
 }
 
 // ===== Export Formats =====
-export type ExportFormat = 'har' | 'json' | 'curl' | 'python' | 'postman';
+export type ExportFormat = "har" | "json" | "curl" | "python" | "postman";
 
 // ===== Request Composer =====
 export interface ComposedRequest {
@@ -109,7 +109,7 @@ export interface BreakpointConfig {
 // ===== Intercepted Request/Response =====
 export interface InterceptedRequest {
   id: string;
-  type: 'request' | 'response';
+  type: "request" | "response";
   timestamp: number;
   method: string;
   url: string;
@@ -178,55 +178,106 @@ export interface HarEntry {
   };
 }
 
+// ===== SSL Bypass Types =====
+export interface PatchedItem {
+  type:
+    | "network_security_config"
+    | "manifest"
+    | "smali_pin_removed"
+    | "smali_trust_override";
+  file: string;
+  description: string;
+}
+
+export interface PatchResult {
+  success: boolean;
+  patchedItems: PatchedItem[];
+  warnings: string[];
+  outputPath: string;
+}
+
+export interface DetectedPinningHost {
+  host: string;
+  framework: string;
+  detectedAt: number;
+  bypassed: boolean;
+}
+
+export type FridaArch = "arm64-v8a" | "x86_64";
+
+export type BypassFramework =
+  | "auto"
+  | "okhttp3"
+  | "conscrypt"
+  | "webview"
+  | "flutter"
+  | "react-native"
+  | "all";
+
+export interface FridaLogEntry {
+  timestamp: number;
+  level: "info" | "success" | "error" | "warning";
+  message: string;
+}
+
 // ===== IPC Channel Names =====
 export const IPC_CHANNELS = {
   // Proxy control
-  PROXY_START: 'proxy:start',
-  PROXY_STOP: 'proxy:stop',
-  PROXY_STATUS: 'proxy:status',
-  PROXY_ERROR: 'proxy:error',
+  PROXY_START: "proxy:start",
+  PROXY_STOP: "proxy:stop",
+  PROXY_STATUS: "proxy:status",
+  PROXY_ERROR: "proxy:error",
 
   // Certificate
-  CERT_GET_QR: 'cert:get-qr',
-  CERT_GET_PATH: 'cert:get-path',
+  CERT_GET_QR: "cert:get-qr",
+  CERT_GET_PATH: "cert:get-path",
 
   // Requests
-  REQUEST_CAPTURED: 'request:captured',
-  REQUESTS_GET_ALL: 'requests:get-all',
-  REQUESTS_GET_BY_ID: 'requests:get-by-id',
-  REQUESTS_CLEAR: 'requests:clear',
-  REQUESTS_DELETE: 'requests:delete',
-  REQUESTS_EXPORT: 'requests:export',
-  REQUESTS_COUNT: 'requests:count',
+  REQUEST_CAPTURED: "request:captured",
+  REQUESTS_GET_ALL: "requests:get-all",
+  REQUESTS_GET_BY_ID: "requests:get-by-id",
+  REQUESTS_CLEAR: "requests:clear",
+  REQUESTS_DELETE: "requests:delete",
+  REQUESTS_EXPORT: "requests:export",
+  REQUESTS_COUNT: "requests:count",
 
   // Settings
-  SETTINGS_GET: 'settings:get',
-  SETTINGS_SAVE: 'settings:save',
+  SETTINGS_GET: "settings:get",
+  SETTINGS_SAVE: "settings:save",
 
   // App
-  APP_GET_LOCAL_IP: 'app:get-local-ip',
+  APP_GET_LOCAL_IP: "app:get-local-ip",
 
   // Browser/Emulator
-  LAUNCH_BROWSER: 'app:launch-browser',
-  LAUNCH_EMULATOR: 'app:launch-emulator',
+  LAUNCH_BROWSER: "app:launch-browser",
+  LAUNCH_EMULATOR: "app:launch-emulator",
 
   // Request Replay & Composer
-  REQUEST_REPLAY: 'request:replay',
-  REQUEST_COMPOSE: 'request:compose',
+  REQUEST_REPLAY: "request:replay",
+  REQUEST_COMPOSE: "request:compose",
 
   // Breakpoints
-  BREAKPOINT_SET_CONFIG: 'breakpoint:set-config',
-  BREAKPOINT_GET_CONFIG: 'breakpoint:get-config',
-  BREAKPOINT_REQUEST_PENDING: 'breakpoint:request-pending',
-  BREAKPOINT_CONTINUE: 'breakpoint:continue',
-  BREAKPOINT_DROP: 'breakpoint:drop',
+  BREAKPOINT_SET_CONFIG: "breakpoint:set-config",
+  BREAKPOINT_GET_CONFIG: "breakpoint:get-config",
+  BREAKPOINT_REQUEST_PENDING: "breakpoint:request-pending",
+  BREAKPOINT_CONTINUE: "breakpoint:continue",
+  BREAKPOINT_DROP: "breakpoint:drop",
 
   // Mock Rules
-  MOCK_GET_RULES: 'mock:get-rules',
-  MOCK_ADD_RULE: 'mock:add-rule',
-  MOCK_UPDATE_RULE: 'mock:update-rule',
-  MOCK_DELETE_RULE: 'mock:delete-rule',
-  MOCK_TOGGLE_RULE: 'mock:toggle-rule',
+  MOCK_GET_RULES: "mock:get-rules",
+  MOCK_ADD_RULE: "mock:add-rule",
+  MOCK_UPDATE_RULE: "mock:update-rule",
+  MOCK_DELETE_RULE: "mock:delete-rule",
+  MOCK_TOGGLE_RULE: "mock:toggle-rule",
+
+  // SSL Bypass
+  SSL_BYPASS_PATCH_APK: "ssl-bypass:patch-apk",
+  SSL_BYPASS_INJECT_GADGET: "ssl-bypass:inject-gadget",
+  SSL_BYPASS_START_FRIDA: "ssl-bypass:start-frida",
+  SSL_BYPASS_STOP_FRIDA: "ssl-bypass:stop-frida",
+  SSL_BYPASS_GET_DETECTED_HOSTS: "ssl-bypass:get-detected-hosts",
+  SSL_BYPASS_FRIDA_LOG: "ssl-bypass:frida-log",
+  SSL_BYPASS_HOST_DETECTED: "ssl-bypass:host-detected",
 } as const;
 
 // ===== IPC Handler Types =====
@@ -256,7 +307,7 @@ export interface IpcApi {
   getLocalIp: () => Promise<string>;
 
   // Browser/Emulator
-  launchBrowser: (browser: 'chrome' | 'firefox' | 'edge') => Promise<boolean>;
+  launchBrowser: (browser: "chrome" | "firefox" | "edge") => Promise<boolean>;
   launchEmulator: () => Promise<boolean>;
 
   // Request Replay & Composer
@@ -266,55 +317,84 @@ export interface IpcApi {
   // Breakpoints
   setBreakpointConfig: (config: BreakpointConfig) => Promise<void>;
   getBreakpointConfig: () => Promise<BreakpointConfig>;
-  continueBreakpoint: (id: string, modified?: InterceptedRequest) => Promise<void>;
+  continueBreakpoint: (
+    id: string,
+    modified?: InterceptedRequest,
+  ) => Promise<void>;
   dropBreakpoint: (id: string) => Promise<void>;
 
   // Mock Rules
   getMockRules: () => Promise<MockRule[]>;
-  addMockRule: (rule: Omit<MockRule, 'id'>) => Promise<MockRule>;
+  addMockRule: (rule: Omit<MockRule, "id">) => Promise<MockRule>;
   updateMockRule: (id: string, rule: Partial<MockRule>) => Promise<void>;
   deleteMockRule: (id: string) => Promise<void>;
   toggleMockRule: (id: string, enabled: boolean) => Promise<void>;
 
+  // SSL Bypass
+  patchApk: (inputPath: string, outputPath: string) => Promise<PatchResult>;
+  injectGadget: (
+    apkPath: string,
+    arch: FridaArch,
+    outputPath: string,
+  ) => Promise<void>;
+  startFrida: (
+    packageName: string,
+    framework: BypassFramework,
+  ) => Promise<void>;
+  stopFrida: () => Promise<void>;
+  getDetectedHosts: () => Promise<DetectedPinningHost[]>;
+
   // Events
-  onRequestCaptured: (callback: (request: CapturedRequest) => void) => () => void;
+  onRequestCaptured: (
+    callback: (request: CapturedRequest) => void,
+  ) => () => void;
   onProxyError: (callback: (error: string) => void) => () => void;
-  onBreakpointHit: (callback: (intercepted: InterceptedRequest) => void) => () => void;
+  onBreakpointHit: (
+    callback: (intercepted: InterceptedRequest) => void,
+  ) => () => void;
+  onFridaLog: (callback: (log: FridaLogEntry) => void) => () => void;
+  onHostDetected: (callback: (host: DetectedPinningHost) => void) => () => void;
 }
 
 // ===== Content Type Categories =====
 export const CONTENT_TYPE_CATEGORIES = {
-  json: ['application/json', 'text/json'],
-  html: ['text/html'],
-  xml: ['application/xml', 'text/xml'],
-  text: ['text/plain', 'text/css', 'text/javascript', 'application/javascript'],
-  image: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'],
-  binary: ['application/octet-stream', 'application/pdf', 'application/zip'],
-  form: ['application/x-www-form-urlencoded', 'multipart/form-data'],
+  json: ["application/json", "text/json"],
+  html: ["text/html"],
+  xml: ["application/xml", "text/xml"],
+  text: ["text/plain", "text/css", "text/javascript", "application/javascript"],
+  image: [
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+  ],
+  binary: ["application/octet-stream", "application/pdf", "application/zip"],
+  form: ["application/x-www-form-urlencoded", "multipart/form-data"],
 } as const;
 
 // ===== HTTP Methods =====
 export const HTTP_METHODS = [
-  'GET',
-  'POST',
-  'PUT',
-  'PATCH',
-  'DELETE',
-  'HEAD',
-  'OPTIONS',
-  'CONNECT',
-  'TRACE',
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
+  "CONNECT",
+  "TRACE",
 ] as const;
 
 export type HttpMethod = (typeof HTTP_METHODS)[number];
 
 // ===== Status Code Ranges =====
 export const STATUS_CODE_RANGES = {
-  info: { min: 100, max: 199, label: '1xx Informational' },
-  success: { min: 200, max: 299, label: '2xx Success' },
-  redirect: { min: 300, max: 399, label: '3xx Redirect' },
-  clientError: { min: 400, max: 499, label: '4xx Client Error' },
-  serverError: { min: 500, max: 599, label: '5xx Server Error' },
+  info: { min: 100, max: 199, label: "1xx Informational" },
+  success: { min: 200, max: 299, label: "2xx Success" },
+  redirect: { min: 300, max: 399, label: "3xx Redirect" },
+  clientError: { min: 400, max: 499, label: "4xx Client Error" },
+  serverError: { min: 500, max: 599, label: "5xx Server Error" },
 } as const;
 
 // ===== Default Settings =====
