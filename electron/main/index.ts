@@ -88,11 +88,14 @@ const initializeServices = async () => {
   // Initialize proxy server with new services
   proxyServer = new ProxyServer(certificateManager, trafficStorage, breakpointService, mockService);
 
-  // Forward breakpoint events to renderer
-  breakpointService.on('breakpoint:hit', (intercepted) => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('breakpoint:request-pending', intercepted);
-    }
+  // Register breakpoint events only after renderer is fully ready
+  // Prevents mainWindow.webContents.send from firing too early
+  mainWindow.on('ready-to-show', () => {
+    breakpointService.on('breakpoint:hit', (intercepted) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('breakpoint:request-pending', intercepted);
+      };
+    });
   });
 
   // Setup IPC handlers
