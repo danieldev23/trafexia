@@ -10,7 +10,12 @@ import type {
   ComposedRequest,
   BreakpointConfig,
   InterceptedRequest,
-  MockRule
+  MockRule,
+  PatchResult,
+  FridaArch,
+  BypassFramework,
+  FridaLogEntry,
+  DetectedPinningHost
 } from '../../shared/types';
 import { IPC_CHANNELS } from '../../shared/types';
 
@@ -144,6 +149,43 @@ const api: IpcApi = {
     ipcRenderer.on(IPC_CHANNELS.BREAKPOINT_REQUEST_PENDING, handler);
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.BREAKPOINT_REQUEST_PENDING, handler);
+    };
+  },
+
+  // SSL Bypass
+  patchApk: (inputPath: string, outputPath: string): Promise<PatchResult> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SSL_BYPASS_PATCH_APK, inputPath, outputPath);
+  },
+  injectGadget: (apkPath: string, arch: FridaArch, outputPath: string): Promise<void> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SSL_BYPASS_INJECT_GADGET, apkPath, arch, outputPath);
+  },
+  startFrida: (packageName: string, framework: BypassFramework): Promise<void> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SSL_BYPASS_START_FRIDA, packageName, framework);
+  },
+  stopFrida: (): Promise<void> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SSL_BYPASS_STOP_FRIDA);
+  },
+  getDetectedHosts: (): Promise<DetectedPinningHost[]> => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SSL_BYPASS_GET_DETECTED_HOSTS);
+  },
+
+  // SSL Bypass Events
+  onFridaLog: (callback: (log: FridaLogEntry) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, log: FridaLogEntry) => {
+      callback(log);
+    };
+    ipcRenderer.on(IPC_CHANNELS.SSL_BYPASS_FRIDA_LOG, handler);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.SSL_BYPASS_FRIDA_LOG, handler);
+    };
+  },
+  onHostDetected: (callback: (host: DetectedPinningHost) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, host: DetectedPinningHost) => {
+      callback(host);
+    };
+    ipcRenderer.on(IPC_CHANNELS.SSL_BYPASS_HOST_DETECTED, handler);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.SSL_BYPASS_HOST_DETECTED, handler);
     };
   },
 };

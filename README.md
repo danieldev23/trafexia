@@ -7,6 +7,9 @@ A powerful desktop application for intercepting and analyzing HTTP/HTTPS traffic
 ## Features
 
 - **MITM Proxy Server** - Intercept HTTP/HTTPS traffic on port 8888
+- **SSL Pinning Bypass** - Built-in bypass scripts for OkHttp3, Conscrypt, WebView, Flutter, and React Native
+- **APK Patcher & Frida Gadget** - Inject bypasses directly into APKs without needing a rooted device
+- **Root & Emulator Evasion** - Evade F13 constraints on hyper-secure apps (e.g., Shopee) via advanced system hooks
 - **Auto CA Certificate Generation** - Creates and manages SSL certificates for HTTPS interception
 - **QR Code Setup** - Easy mobile device configuration via QR code scanning
 - **Real-time Request Capture** - Live updates as requests are captured

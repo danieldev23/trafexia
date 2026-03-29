@@ -8,6 +8,7 @@ import { BreakpointService } from './services/BreakpointService';
 import { MockService } from './services/MockService';
 import { RequestComposer } from './services/RequestComposer';
 import { setupIpcHandlers } from './ipc-handlers';
+import { setupSslBypassIpc, cleanupFridaProcess } from '../ssl-bypass/ssl-bypass-ipc';
 import { getLocalIp } from './utils/network';
 
 // Services
@@ -106,6 +107,9 @@ const initializeServices = async () => {
     mainWindow: () => mainWindow,
   });
 
+  // Setup SSL bypass IPC handlers
+  setupSslBypassIpc(() => mainWindow);
+
   console.log('[Main] Services initialized');
 };
 
@@ -148,6 +152,9 @@ app.on('before-quit', async () => {
     if (trafficStorage) {
       trafficStorage.close();
     }
+
+    // Cleanup Frida process
+    cleanupFridaProcess();
   } catch (error) {
     console.error('[Main] Cleanup error:', error);
   }
