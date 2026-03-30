@@ -45,6 +45,14 @@ const createWindow = () => {
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
+
+    // Register breakpoint events after renderer is fully ready
+    // Prevents mainWindow.webContents.send from firing too early
+    breakpointService.on('breakpoint:hit', (intercepted) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('breakpoint:request-pending', intercepted);
+      };
+    });
   });
 
   // Open external links in browser
@@ -87,16 +95,6 @@ const initializeServices = async () => {
 
   // Initialize proxy server with new services
   proxyServer = new ProxyServer(certificateManager, trafficStorage, breakpointService, mockService);
-
-  // Register breakpoint events only after renderer is fully ready
-  // Prevents mainWindow.webContents.send from firing too early
-  mainWindow.on('ready-to-show', () => {
-    breakpointService.on('breakpoint:hit', (intercepted) => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('breakpoint:request-pending', intercepted);
-      };
-    });
-  });
 
   // Setup IPC handlers
   setupIpcHandlers({
